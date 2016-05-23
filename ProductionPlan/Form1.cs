@@ -14,12 +14,15 @@ namespace ProductionPlan
 {
     public partial class Form1 : Form
     {
+        
+
         Microsoft.Office.Interop.Excel.Application app;
         Microsoft.Office.Interop.Excel.Workbook workbook;
         Microsoft.Office.Interop.Excel.Worksheet worksheet;
 
         public Form1()
         {
+            this.DoubleBuffered = true;
             InitializeComponent();
          
             app = new Microsoft.Office.Interop.Excel.Application();
@@ -31,6 +34,7 @@ namespace ProductionPlan
             }
             worksheet = workbook.ActiveSheet;
             setFirstTable();
+
         }
 
         private void button1_Click(object sender, EventArgs e)
