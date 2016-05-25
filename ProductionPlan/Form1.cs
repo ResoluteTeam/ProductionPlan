@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Windows.Forms;
+using System.Collections.Generic;
 using Excel = Microsoft.Office.Interop.Excel;
 
 namespace ProductionPlan
 {
     public partial class Form1 : Form
-    { 
+    {
         Excel.Application app;
         Excel.Workbook workbook;
         Excel.Worksheet worksheet;
@@ -16,6 +17,8 @@ namespace ProductionPlan
         int products;
         int orders;
         int operations;
+
+        List<List<int>> productToOperations = new List<List<int>>();
 
         public Form1()
         {
@@ -32,7 +35,7 @@ namespace ProductionPlan
 
         private void button1_Click(object sender, EventArgs e)
         {
-
+            getData();
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -42,14 +45,14 @@ namespace ProductionPlan
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
-/*          workbook.Close(false, false, false);
-            app.Quit();
-            System.Runtime.InteropServices.Marshal.ReleaseComObject(app);
-            app = null;
-            workbook = null;
-            worksheet = null;
-            System.GC.Collect();
-*/
+            /*          workbook.Close(false, false, false);
+                        app.Quit();
+                        System.Runtime.InteropServices.Marshal.ReleaseComObject(app);
+                        app = null;
+                        workbook = null;
+                        worksheet = null;
+                        System.GC.Collect();
+            */
         }
 
         private void tabControl1_SelectedIndexChanged(object sender, EventArgs e)
@@ -96,7 +99,7 @@ namespace ProductionPlan
 
         private void textBox1_TextChanged(object sender, EventArgs e)
         {
-            if (!string.IsNullOrWhiteSpace(textBox1.Text))
+            if (!string.IsNullOrWhiteSpace(textBox1.Text) && Convert.ToInt32(textBox1.Text) != 0)
             {
                 products = Convert.ToInt32(textBox1.Text);
                 updateDataGrid();
@@ -105,7 +108,7 @@ namespace ProductionPlan
 
         private void textBox2_TextChanged(object sender, EventArgs e)
         {
-            if (!string.IsNullOrWhiteSpace(textBox2.Text))
+            if (!string.IsNullOrWhiteSpace(textBox2.Text) && Convert.ToInt32(textBox2.Text) != 0)
             {
                 operations = Convert.ToInt32(textBox2.Text);
                 updateDataGrid();
@@ -114,14 +117,14 @@ namespace ProductionPlan
 
         private void textBox3_TextChanged(object sender, EventArgs e)
         {
-            if (!string.IsNullOrWhiteSpace(textBox3.Text))
+            if (!string.IsNullOrWhiteSpace(textBox3.Text) && Convert.ToInt32(textBox3.Text) != 0)
             {
                 orders = Convert.ToInt32(textBox3.Text);
                 updateDataGrid();
             }
         }
 
-        private void updateDataGrid ()
+        private void updateDataGrid()
         {
             dataGridView1.Rows.Clear();
             dataGridView1.Columns.Clear();
@@ -142,14 +145,19 @@ namespace ProductionPlan
             dataGridView4.ColumnCount = 2;
 
             dataGridView3.Columns[0].Name = "Заказ";
+            dataGridView3.Columns[0].SortMode = DataGridViewColumnSortMode.NotSortable;
             dataGridView4.Columns[0].Name = "Заказ";
+            dataGridView4.Columns[0].SortMode = DataGridViewColumnSortMode.NotSortable;
 
             dataGridView3.Columns[1].Name = "Срок";
+            dataGridView3.Columns[1].SortMode = DataGridViewColumnSortMode.NotSortable;
             dataGridView4.Columns[1].Name = "Приоритетность";
+            dataGridView4.Columns[1].SortMode = DataGridViewColumnSortMode.NotSortable;
 
             for (int i = 0; i < products; i++)
             {
                 dataGridView1.Columns[i].Name = "Изделие№" + (i + 1).ToString();
+                dataGridView1.Columns[i].SortMode = DataGridViewColumnSortMode.NotSortable;
             }
 
             for (int i = 0; i < operations; i++)
@@ -161,6 +169,7 @@ namespace ProductionPlan
             for (int i = 0; i < products; i++)
             {
                 dataGridView2.Columns[i].Name = "Изделие№" + (i + 1).ToString();
+                dataGridView2.Columns[i].SortMode = DataGridViewColumnSortMode.NotSortable;
             }
 
             for (int i = 0; i < orders; i++)
@@ -177,9 +186,14 @@ namespace ProductionPlan
                 dataGridView4.Rows.Add();
                 dataGridView4.Rows[i].HeaderCell.Value = "Заказ№" + (i + 1).ToString();
             }
+
+            dataGridView1.AutoResizeRowHeadersWidth(DataGridViewRowHeadersWidthSizeMode.AutoSizeToAllHeaders);
+            dataGridView2.AutoResizeRowHeadersWidth(DataGridViewRowHeadersWidthSizeMode.AutoSizeToAllHeaders);
+            dataGridView3.AutoResizeRowHeadersWidth(DataGridViewRowHeadersWidthSizeMode.AutoSizeToAllHeaders);
+            dataGridView4.AutoResizeRowHeadersWidth(DataGridViewRowHeadersWidthSizeMode.AutoSizeToAllHeaders);
         }
 
-        private void fileFromExcel ()
+        private void fileFromExcel()
         {
             app = new Excel.Application();
 
@@ -199,6 +213,43 @@ namespace ProductionPlan
 
             changeSheet(2);
             orders = lastRow;
+        }
+
+        private void textBox1_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar))
+            {
+                e.Handled = true;
+            }
+        }
+        private void textBox2_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar))
+            {
+                e.Handled = true;
+            }
+        }
+
+        private void textBox3_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar))
+            {
+                e.Handled = true;
+            }
+        }
+
+        private void getData()
+        {
+            for (int i = 0; i < dataGridView1.RowCount; i++)
+            {
+                List<int> temp = new List<int>();
+                for (int j = 0; j < dataGridView1.ColumnCount; j++)
+                {
+                    int x = Convert.ToInt32(dataGridView1.Rows[i].Cells[j].Value);
+                    temp.Add(x);
+                }
+                productToOperations.Add(temp);
+            }
         }
     }
 }
