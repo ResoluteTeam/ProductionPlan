@@ -1,21 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using Microsoft.Office.Tools.Excel;
-
 
 namespace ProductionPlan
 {
     public partial class Form1 : Form
-    {
-        
-
+    { 
         Microsoft.Office.Interop.Excel.Application app;
         Microsoft.Office.Interop.Excel.Workbook workbook;
         Microsoft.Office.Interop.Excel.Worksheet worksheet;
@@ -54,7 +43,14 @@ namespace ProductionPlan
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
-            app.ActiveWorkbook.Close(true);
+            workbook.Close(false, false, false);
+            app.Quit();
+            System.Runtime.InteropServices.Marshal.ReleaseComObject(app);
+            app = null;
+            workbook = null;
+            worksheet = null;
+            System.GC.Collect();
+
         }
 
         private void tabControl1_SelectedIndexChanged(object sender, EventArgs e)
@@ -95,12 +91,12 @@ namespace ProductionPlan
             for (int i = 1; i < dataGridView1.ColumnCount; i++)
             {
                 dataGridView1.Columns[i-1].Name = "Изделие №"+(i).ToString();
-                dataGridView1.Rows.Add();
             }
-            
-            for(int i = 1; i < rcount; i++)
-            {
 
+            for (int i = 0; i < rcount; i++)
+            {
+                dataGridView1.Rows.Add();
+                dataGridView1.Rows[i].HeaderCell.Value = "Операция " + (i + 1).ToString();
             }
 
             for (int i = 1; i < dataGridView2.ColumnCount; i++)
@@ -109,13 +105,13 @@ namespace ProductionPlan
                 dataGridView2.Columns[i - 1].Name = "Изделие №" + (i).ToString();
                 dataGridView2.Rows.Add();
             }
-            dataGridView3.Columns[0].Name = "Изделие";
+            dataGridView3.Columns[0].Name = "Заказ";
             dataGridView3.Columns[1].Name = "Срок";
             for (int i = 1; i < dataGridView3.ColumnCount; i++)
             {
                 dataGridView3.Rows.Add();
             }
-            dataGridView4.Columns[0].Name = "Изделие";
+            dataGridView4.Columns[0].Name = "Заказ";
             dataGridView4.Columns[1].Name = "Приоритетность";
             for (int i = 1; i < dataGridView4.ColumnCount; i++)
             {
