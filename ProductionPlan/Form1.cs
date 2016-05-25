@@ -5,11 +5,73 @@ using Excel = Microsoft.Office.Interop.Excel;
 
 namespace ProductionPlan
 {
+    public class Product
+    {
+        int[] duration;
+
+        public Product(int operationsCount)
+        {
+            duration = new int[operationsCount];
+        }
+
+        public int[] Duration
+        {
+            get
+            {
+                return duration;
+            }
+
+            set
+            {
+                duration = value;
+            }
+        }
+    }
+
+    public class Order
+    {
+        int[] products;
+        float priority;
+
+        public float Priority
+        {
+            get
+            {
+                return priority;
+            }
+
+            set
+            {
+                priority = value;
+            }
+        }
+
+        public int[] Products
+        {
+            get
+            {
+                return products;
+            }
+
+            set
+            {
+                products = value;
+            }
+        }
+
+        public Order(int prodCount)
+        {
+            products = new int[prodCount];
+        }
+    }
+
     public partial class Form1 : Form
     {
         Excel.Application app;
         Excel.Workbook workbook;
         Excel.Worksheet worksheet;
+
+        List<Order> ordersList;
 
         int sheetscount;
         int lastRow, lastColumn;
@@ -58,24 +120,6 @@ namespace ProductionPlan
         private void tabControl1_SelectedIndexChanged(object sender, EventArgs e)
         {
 
-            switch (this.tabControl1.SelectedIndex)
-            {
-                case (0):
-                    {
-                        Console.Write("000000000000000");
-                    };
-                    break;
-                case (1):
-                    {
-                        Console.Write("111111111111111");
-                    };
-                    break;
-                case (2):
-                    {
-                        Console.Write("222222222222222");
-                    };
-                    break;
-            }
         }
 
         private void changeSheet(int num)
