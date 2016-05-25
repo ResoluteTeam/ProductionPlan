@@ -1,29 +1,33 @@
 ﻿using System;
 using System.Windows.Forms;
+using Excel = Microsoft.Office.Interop.Excel;
 
 namespace ProductionPlan
 {
     public partial class Form1 : Form
     { 
-        Microsoft.Office.Interop.Excel.Application app;
-        Microsoft.Office.Interop.Excel.Workbook workbook;
-        Microsoft.Office.Interop.Excel.Worksheet worksheet;
+        Excel.Application app;
+        Excel.Workbook workbook;
+        Excel.Worksheet worksheet;
+        int sheetscount;
+        int lastRow, lastColumn;
 
         public Form1()
         {
             this.DoubleBuffered = true;
             InitializeComponent();
          
-            app = new Microsoft.Office.Interop.Excel.Application();
+            app = new Excel.Application();
+
             try {
                 workbook = app.Workbooks.Open(Application.StartupPath + @"\ProductionPlan.xlsx");
             }
             catch {
                 Console.Write("Cannot open ProductionPlan.xlsx");
             }
-            worksheet = workbook.ActiveSheet;
+            sheetscount = workbook.Sheets.Count;
+            changeSheet(1);
             setFirstTable();
-
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -34,11 +38,6 @@ namespace ProductionPlan
         private void Form1_Load(object sender, EventArgs e)
         {
 
-        }
-
-        ~Form1()
-        {
-                
         }
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
@@ -116,6 +115,20 @@ namespace ProductionPlan
             for (int i = 1; i < dataGridView4.ColumnCount; i++)
             {
                 dataGridView4.Rows.Add();
+            }
+        }
+
+        private void changeSheet(int num)
+        {
+            if (num < sheetscount && num > 0)
+            {
+                worksheet = (Excel.Worksheet)workbook.Worksheets.get_Item(num);
+                int lastRow = worksheet.UsedRange.Rows.Count;
+                int lastColumn = worksheet.UsedRange.Columns.Count;
+            }
+            else
+            {
+                Console.Write("Sheets don't exist!!!");
             }
         }
 
