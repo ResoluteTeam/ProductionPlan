@@ -72,6 +72,7 @@ namespace ProductionPlan
         Excel.Worksheet worksheet;
 
         List<Order> ordersList;
+        List<Product> productList;
 
         int sheetscount;
         int lastRow, lastColumn;
@@ -97,12 +98,16 @@ namespace ProductionPlan
 
         private void button1_Click(object sender, EventArgs e)
         {
-            getData();
-        }
-
-        private void Form1_Load(object sender, EventArgs e)
-        {
-
+            if (tabControl1.SelectedIndex == 0)
+            {
+                getDataFromProductGrid();
+                tabControl1.SelectedIndex = 1;
+            }
+            else if (tabControl1.SelectedIndex == 1)
+            {
+                getDataFromOrdersGrid();
+                tabControl1.SelectedIndex = 2;
+            }
         }
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
@@ -115,11 +120,6 @@ namespace ProductionPlan
                         worksheet = null;
                         System.GC.Collect();
             */
-        }
-
-        private void tabControl1_SelectedIndexChanged(object sender, EventArgs e)
-        {
-
         }
 
         private void changeSheet(int num)
@@ -136,11 +136,6 @@ namespace ProductionPlan
             }
         }
 
-        private void label3_Click(object sender, EventArgs e)
-        {
-
-        }
-
         private void textBox1_TextChanged(object sender, EventArgs e)
         {
             if (!string.IsNullOrWhiteSpace(textBox1.Text) && Convert.ToInt32(textBox1.Text) != 0)
@@ -149,7 +144,6 @@ namespace ProductionPlan
                 updateDataGrid();
             }
         }
-
         private void textBox2_TextChanged(object sender, EventArgs e)
         {
             if (!string.IsNullOrWhiteSpace(textBox2.Text) && Convert.ToInt32(textBox2.Text) != 0)
@@ -158,7 +152,6 @@ namespace ProductionPlan
                 updateDataGrid();
             }
         }
-
         private void textBox3_TextChanged(object sender, EventArgs e)
         {
             if (!string.IsNullOrWhiteSpace(textBox3.Text) && Convert.ToInt32(textBox3.Text) != 0)
@@ -273,7 +266,6 @@ namespace ProductionPlan
                 e.Handled = true;
             }
         }
-
         private void textBox3_KeyPress(object sender, KeyPressEventArgs e)
         {
             if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar))
@@ -282,18 +274,32 @@ namespace ProductionPlan
             }
         }
 
-        private void getData()
+        private void getDataFromProductGrid()
         {
+            productList = new List<Product>();
+            ordersList = new List<Order>();
+
             for (int i = 0; i < dataGridView1.RowCount; i++)
             {
-                List<int> temp = new List<int>();
+                Product tempProduct = new Product(operations);
+                int[] duration = new int[operations];
+
                 for (int j = 0; j < dataGridView1.ColumnCount; j++)
                 {
-                    int x = Convert.ToInt32(dataGridView1.Rows[i].Cells[j].Value);
-                    temp.Add(x);
+                    duration[j] = Convert.ToInt32(dataGridView1.Rows[i].Cells[j].Value); 
                 }
-                productToOperations.Add(temp);
+
+                for (int j = 0; j < dataGridView1.ColumnCount; j++)
+                {
+                    tempProduct.Duration.SetValue(duration[j], j);
+                }
+
+                productList.Add(tempProduct);
             }
+        }
+        private void getDataFromOrdersGrid()
+        {
+
         }
     }
 }

@@ -73,7 +73,6 @@
             this.tabControl1.SelectedIndex = 0;
             this.tabControl1.Size = new System.Drawing.Size(690, 400);
             this.tabControl1.TabIndex = 0;
-            this.tabControl1.SelectedIndexChanged += new System.EventHandler(this.tabControl1_SelectedIndexChanged);
             // 
             // tabPage1
             // 
@@ -201,7 +200,6 @@
             this.label3.Size = new System.Drawing.Size(81, 13);
             this.label3.TabIndex = 3;
             this.label3.Text = "Дата отгрузки";
-            this.label3.Click += new System.EventHandler(this.label3_Click);
             // 
             // dataGridView4
             // 
