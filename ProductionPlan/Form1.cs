@@ -5,66 +5,6 @@ using Excel = Microsoft.Office.Interop.Excel;
 
 namespace ProductionPlan
 {
-    public class Product
-    {
-        int[] duration;
-
-        public Product(int operationsCount)
-        {
-            duration = new int[operationsCount];
-        }
-
-        public int[] Duration
-        {
-            get
-            {
-                return duration;
-            }
-
-            set
-            {
-                duration = value;
-            }
-        }
-    }
-
-    public class Order
-    {
-        int[] products;
-        float priority;
-
-        public float Priority
-        {
-            get
-            {
-                return priority;
-            }
-
-            set
-            {
-                priority = value;
-            }
-        }
-
-        public int[] Products
-        {
-            get
-            {
-                return products;
-            }
-
-            set
-            {
-                products = value;
-            }
-        }
-
-        public Order(int prodCount)
-        {
-            products = new int[prodCount];
-        }
-    }
-
     public partial class Form1 : Form
     {
         Excel.Application app;
@@ -178,18 +118,13 @@ namespace ProductionPlan
             dataGridView1.ColumnCount = products;
             dataGridView2.ColumnCount = products;
 
-            dataGridView3.ColumnCount = 2;
-            dataGridView4.ColumnCount = 2;
+            dataGridView3.ColumnCount = 1;
+            dataGridView4.ColumnCount = 1;
 
-            dataGridView3.Columns[0].Name = "Заказ";
+            dataGridView3.Columns[0].Name = "Срок";
             dataGridView3.Columns[0].SortMode = DataGridViewColumnSortMode.NotSortable;
-            dataGridView4.Columns[0].Name = "Заказ";
+            dataGridView4.Columns[0].Name = "Приоритетность";
             dataGridView4.Columns[0].SortMode = DataGridViewColumnSortMode.NotSortable;
-
-            dataGridView3.Columns[1].Name = "Срок";
-            dataGridView3.Columns[1].SortMode = DataGridViewColumnSortMode.NotSortable;
-            dataGridView4.Columns[1].Name = "Приоритетность";
-            dataGridView4.Columns[1].SortMode = DataGridViewColumnSortMode.NotSortable;
 
             for (int i = 0; i < products; i++)
             {
@@ -277,7 +212,6 @@ namespace ProductionPlan
         private void getDataFromProductGrid()
         {
             productList = new List<Product>();
-            ordersList = new List<Order>();
 
             for (int i = 0; i < dataGridView1.RowCount; i++)
             {
@@ -299,7 +233,88 @@ namespace ProductionPlan
         }
         private void getDataFromOrdersGrid()
         {
+            ordersList = new List<Order>();
 
+            for (int i = 0; i < dataGridView2.RowCount; i++)
+            {
+                Order tempOrder = new Order(products);
+                int[] amount = new int[products];
+                int priority;
+
+                for (int j = 0; j < dataGridView2.ColumnCount; j++)
+                {
+                    amount[j] = Convert.ToInt32(dataGridView2.Rows[i].Cells[j].Value);
+                }
+
+                for (int j = 0; j < dataGridView2.ColumnCount; j++)
+                {
+                    tempOrder.Products.SetValue(amount[j], j);
+                }
+
+                tempOrder.Priority = Convert.ToSingle(dataGridView4.Rows[i].Cells[0].Value);
+
+                ordersList.Add(tempOrder);
+            }
+        }
+    }
+
+    public class Product
+    {
+        int[] duration;
+
+        public Product(int operationsCount)
+        {
+            duration = new int[operationsCount];
+        }
+
+        public int[] Duration
+        {
+            get
+            {
+                return duration;
+            }
+
+            set
+            {
+                duration = value;
+            }
+        }
+    }
+
+    public class Order
+    {
+        int[] products;
+        float priority;
+
+        public float Priority
+        {
+            get
+            {
+                return priority;
+            }
+
+            set
+            {
+                priority = value;
+            }
+        }
+
+        public int[] Products
+        {
+            get
+            {
+                return products;
+            }
+
+            set
+            {
+                products = value;
+            }
+        }
+
+        public Order(int prodCount)
+        {
+            products = new int[prodCount];
         }
     }
 }
