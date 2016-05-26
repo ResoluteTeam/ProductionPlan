@@ -2,6 +2,7 @@
 using System.Windows.Forms;
 using System.Collections.Generic;
 using Excel = Microsoft.Office.Interop.Excel;
+using System.Linq;
 
 namespace ProductionPlan
 {
@@ -20,6 +21,7 @@ namespace ProductionPlan
         int products;
         int orders;
         int operations;
+        int maxTime;
 
         List<List<int>> productToOperations = new List<List<int>>();
 
@@ -38,16 +40,7 @@ namespace ProductionPlan
 
         private void button1_Click(object sender, EventArgs e)
         {
-            if (tabControl1.SelectedIndex == 0)
-            {
-                getDataFromProductGrid();
-                tabControl1.SelectedIndex = 1;
-            }
-            else if (tabControl1.SelectedIndex == 1)
-            {
-                getDataFromOrdersGrid();
-                tabControl1.SelectedIndex = 2;
-            }
+            tabControl1.SelectedIndex++;
         }
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
@@ -163,6 +156,10 @@ namespace ProductionPlan
             dataGridView2.AutoResizeRowHeadersWidth(DataGridViewRowHeadersWidthSizeMode.AutoSizeToAllHeaders);
             dataGridView3.AutoResizeRowHeadersWidth(DataGridViewRowHeadersWidthSizeMode.AutoSizeToAllHeaders);
             dataGridView4.AutoResizeRowHeadersWidth(DataGridViewRowHeadersWidthSizeMode.AutoSizeToAllHeaders);
+            dataGridView5.AutoResizeRowHeadersWidth(DataGridViewRowHeadersWidthSizeMode.AutoSizeToAllHeaders);
+
+            getDataFromOrdersGrid();
+            getDataFromProductGrid();
         }
 
         private void fileFromExcel()
@@ -231,6 +228,67 @@ namespace ProductionPlan
                 productList.Add(tempProduct);
             }
         }
+
+        private void tabControl1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            getDataFromProductGrid();
+            getDataFromOrdersGrid();
+            if (tabControl1.SelectedIndex == 2)
+            {
+                createResultGrid();
+                calculateByPriority();   
+            }
+        }
+
+        private void calculateByPriority()
+        {
+            ordersList = ordersList.OrderByDescending(Order => Order.Priority).ToList();
+
+            int currentProduct = -1;
+            while (ordersList.Any())
+            {
+                currentProduct = -1;
+                for (int i = 0; i < products; i++)
+                {
+                    if (ordersList.ElementAt(0).Products[i] != 0)
+                    {
+                        currentProduct = i;
+                        i = products;
+                    }
+                }
+
+                if (currentProduct == -1)
+                {
+                    ordersList.RemoveAt(0);
+                } else
+                {
+                    for (int i = operations - 1; i >= 0; i--) {
+                        int times = 0;
+                        for (int j = 0; j < orders * products; j++)
+                        {
+                            times += Convert.ToInt32(dataGridView5.Rows[i + j * operations].Cells[ordersList.ElementAt(0).Time - 1].Value);
+                        }
+                        if (Convert.ToInt32(dataGridView5.Rows[ordersList.ElementAt(0).Index * products * operations + currentProduct * operations + i].Cells[ordersList.ElementAt(0).Time - 1].Value) +
+                            productList.ElementAt(currentProduct).Duration.ElementAt(i) < 8 - times)
+                        {
+                            dataGridView5.Rows[ordersList.ElementAt(0).Index * products * operations + currentProduct * operations + i].Cells[ordersList.ElementAt(0).Time - 1].Value =
+                            Convert.ToInt32(dataGridView5.Rows[ordersList.ElementAt(0).Index * products * operations + currentProduct * operations + i].Cells[ordersList.ElementAt(0).Time - 1].Value) +
+                            productList.ElementAt(currentProduct).Duration.ElementAt(i);
+                        } else
+                        {
+                           ordersList.ElementAt(0).Time--;
+                           dataGridView5.Rows[ordersList.ElementAt(0).Index * products * operations + currentProduct * operations + i].Cells[ordersList.ElementAt(0).Time - 1].Value =
+                           Convert.ToInt32(dataGridView5.Rows[ordersList.ElementAt(0).Index * products * operations + currentProduct * operations + i].Cells[ordersList.ElementAt(0).Time - 1].Value) +
+                           productList.ElementAt(currentProduct).Duration.ElementAt(i);
+                        }
+                    }
+                    ordersList.ElementAt(0).Products[currentProduct]--;
+                }
+
+                
+            }
+        }
+
         private void getDataFromOrdersGrid()
         {
             ordersList = new List<Order>();
@@ -252,9 +310,51 @@ namespace ProductionPlan
                 }
 
                 tempOrder.Priority = Convert.ToSingle(dataGridView4.Rows[i].Cells[0].Value);
+                tempOrder.Index = i;
+                tempOrder.Time = Convert.ToInt32(dataGridView3.Rows[i].Cells[0].Value);
 
                 ordersList.Add(tempOrder);
             }
+
+            int temp = 0;
+            for (int i = 0; i < dataGridView3.RowCount; i++)
+            {
+                if (Convert.ToInt32(dataGridView3.Rows[i].Cells[0].Value) > temp)
+                {
+                    temp = Convert.ToInt32(dataGridView3.Rows[i].Cells[0].Value);
+                }
+            }
+            maxTime = temp;
+
+        }
+        private void createResultGrid()
+        {
+            dataGridView5.Rows.Clear();
+            dataGridView5.Columns.Clear();
+
+            dataGridView5.ColumnCount = maxTime;
+            dataGridView5.RowCount = orders * products * operations;
+            
+
+            for (int i = 0; i < maxTime; i++)
+            { 
+                dataGridView5.Columns[i].Name = "День " + (i + 1).ToString();
+                dataGridView5.Columns[i].SortMode = DataGridViewColumnSortMode.NotSortable;
+            }
+
+            for (int i = 0; i < orders; i++)
+            {
+                dataGridView5.Rows[i * products * operations].HeaderCell.Value = "Заказ№" + (i + 1).ToString();
+                for (int j = 0; j < products; j++)
+                {
+                    dataGridView5.Rows[i * products * operations + j * operations].HeaderCell.Value += " Изделие№" + (j + 1).ToString();
+                    for (int k = 0; k < operations; k++)
+                    {
+                        dataGridView5.Rows[i * products * operations + j * operations + k].HeaderCell.Value += " Операция№" + (k + 1).ToString();
+                    }
+                }
+            }
+            dataGridView5.AutoResizeRowHeadersWidth(DataGridViewRowHeadersWidthSizeMode.AutoSizeToAllHeaders);
         }
     }
 
@@ -285,6 +385,8 @@ namespace ProductionPlan
     {
         int[] products;
         float priority;
+        int index;
+        int time;
 
         public float Priority
         {
@@ -309,6 +411,32 @@ namespace ProductionPlan
             set
             {
                 products = value;
+            }
+        }
+
+        public int Index
+        {
+            get
+            {
+                return index;
+            }
+
+            set
+            {
+                index = value;
+            }
+        }
+
+        public int Time
+        {
+            get
+            {
+                return time;
+            }
+
+            set
+            {
+                time = value;
             }
         }
 
