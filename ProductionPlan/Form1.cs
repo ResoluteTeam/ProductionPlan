@@ -217,7 +217,7 @@ namespace ProductionPlan
 
                 for (int j = 0; j < dataGridView1.ColumnCount; j++)
                 {
-                    duration[j] = Convert.ToInt32(dataGridView1.Rows[i].Cells[j].Value); 
+                    duration[j] = Convert.ToInt32(dataGridView1.Rows[j].Cells[i].Value); 
                 }
 
                 for (int j = 0; j < dataGridView1.ColumnCount; j++)
@@ -228,67 +228,6 @@ namespace ProductionPlan
                 productList.Add(tempProduct);
             }
         }
-
-        private void tabControl1_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            getDataFromProductGrid();
-            getDataFromOrdersGrid();
-            if (tabControl1.SelectedIndex == 2)
-            {
-                createResultGrid();
-                calculateByPriority();   
-            }
-        }
-
-        private void calculateByPriority()
-        {
-            ordersList = ordersList.OrderByDescending(Order => Order.Priority).ToList();
-
-            int currentProduct = -1;
-            while (ordersList.Any())
-            {
-                currentProduct = -1;
-                for (int i = 0; i < products; i++)
-                {
-                    if (ordersList.ElementAt(0).Products[i] != 0)
-                    {
-                        currentProduct = i;
-                        i = products;
-                    }
-                }
-
-                if (currentProduct == -1)
-                {
-                    ordersList.RemoveAt(0);
-                } else
-                {
-                    for (int i = operations - 1; i >= 0; i--) {
-                        int times = 0;
-                        for (int j = 0; j < orders * products; j++)
-                        {
-                            times += Convert.ToInt32(dataGridView5.Rows[i + j * operations].Cells[ordersList.ElementAt(0).Time - 1].Value);
-                        }
-                        if (Convert.ToInt32(dataGridView5.Rows[ordersList.ElementAt(0).Index * products * operations + currentProduct * operations + i].Cells[ordersList.ElementAt(0).Time - 1].Value) +
-                            productList.ElementAt(currentProduct).Duration.ElementAt(i) < 8 - times)
-                        {
-                            dataGridView5.Rows[ordersList.ElementAt(0).Index * products * operations + currentProduct * operations + i].Cells[ordersList.ElementAt(0).Time - 1].Value =
-                            Convert.ToInt32(dataGridView5.Rows[ordersList.ElementAt(0).Index * products * operations + currentProduct * operations + i].Cells[ordersList.ElementAt(0).Time - 1].Value) +
-                            productList.ElementAt(currentProduct).Duration.ElementAt(i);
-                        } else
-                        {
-                           ordersList.ElementAt(0).Time--;
-                           dataGridView5.Rows[ordersList.ElementAt(0).Index * products * operations + currentProduct * operations + i].Cells[ordersList.ElementAt(0).Time - 1].Value =
-                           Convert.ToInt32(dataGridView5.Rows[ordersList.ElementAt(0).Index * products * operations + currentProduct * operations + i].Cells[ordersList.ElementAt(0).Time - 1].Value) +
-                           productList.ElementAt(currentProduct).Duration.ElementAt(i);
-                        }
-                    }
-                    ordersList.ElementAt(0).Products[currentProduct]--;
-                }
-
-                
-            }
-        }
-
         private void getDataFromOrdersGrid()
         {
             ordersList = new List<Order>();
@@ -327,6 +266,19 @@ namespace ProductionPlan
             maxTime = temp;
 
         }
+
+        private void tabControl1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            getDataFromProductGrid();
+            getDataFromOrdersGrid();
+
+            if (tabControl1.SelectedIndex == 2)
+            {
+                createResultGrid();
+                calculateByPriority();
+            }
+        }
+
         private void createResultGrid()
         {
             dataGridView5.Rows.Clear();
@@ -334,10 +286,10 @@ namespace ProductionPlan
 
             dataGridView5.ColumnCount = maxTime;
             dataGridView5.RowCount = orders * products * operations;
-            
+
 
             for (int i = 0; i < maxTime; i++)
-            { 
+            {
                 dataGridView5.Columns[i].Name = "День " + (i + 1).ToString();
                 dataGridView5.Columns[i].SortMode = DataGridViewColumnSortMode.NotSortable;
             }
@@ -355,6 +307,79 @@ namespace ProductionPlan
                 }
             }
             dataGridView5.AutoResizeRowHeadersWidth(DataGridViewRowHeadersWidthSizeMode.AutoSizeToAllHeaders);
+        }
+
+        private bool calculateByPriority()
+        {
+            ordersList = ordersList.OrderByDescending(Order => Order.Priority).ToList();
+            int currentProduct;
+
+            while (ordersList.Any())
+            {
+                int currentDate = ordersList.ElementAt(0).Time - 1;
+                currentProduct = -1;
+                for (int i = 0; i < products; i++)
+                {
+                    if (ordersList.ElementAt(0).Products[i] != 0)
+                    {
+                        currentProduct = i; //Выбираем продукт из списка
+                        i = products;
+                    }
+                }
+
+                if (currentProduct == -1)
+                {
+                    ordersList.RemoveAt(0); //Если количество в списке каждого продукта - 0, идем до след. заказа
+                } else // иначе начинаем записывать текущий продукт в таблицу   
+                {
+                    for (int i = operations - 1; i >= 0; i--)
+                    {
+                        int times = 0;
+                        for (int j = 0; j < orders * products; j++)
+                        {
+                            times += Convert.ToInt32(dataGridView5.Rows[j * operations + i].Cells[currentDate].Value);
+                        }
+
+                        while (productList.ElementAt(currentProduct).Duration.ElementAt(i) > 8 - times)
+                        {
+                            currentDate--;
+                            if (currentDate == -1)
+                            {
+                                for (int n = 0; n < dataGridView3.RowCount; n++)
+                                {
+                                    dataGridView3.Rows[n].Cells[0].Value = Convert.ToInt32(dataGridView3.Rows[n].Cells[0].Value) + 1; //добавление + 1 дня к плану
+                                }
+                                getDataFromProductGrid(); //Перерасчёт таблицы
+                                getDataFromOrdersGrid();
+                                ordersList = ordersList.OrderByDescending(Order => Order.Priority).ToList();
+                                createResultGrid();
+                                currentProduct = -1;
+                                i = -1;
+                                break;
+                            }
+   
+                            times = 0;
+                            for (int j = 0; j < orders * products; j++)
+                            {
+                                times += Convert.ToInt32(dataGridView5.Rows[j * operations + i].Cells[currentDate].Value);
+                            }
+                        }
+
+                        if (currentDate != -1)
+                        {
+                            dataGridView5.Rows[ordersList.ElementAt(0).Index * products * operations + currentProduct * operations + i].Cells[currentDate].Value =
+                            Convert.ToInt32(dataGridView5.Rows[ordersList.ElementAt(0).Index * products * operations + currentProduct * operations + i].Cells[currentDate].Value) +
+                            productList.ElementAt(currentProduct).Duration.ElementAt(i);
+                        }
+                    }
+
+                    if(currentProduct != -1)
+                        ordersList.ElementAt(0).Products[currentProduct]--;
+                }
+
+                
+            }
+            return true;
         }
     }
 
