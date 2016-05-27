@@ -96,6 +96,11 @@ namespace ProductionPlan
 
         private void updateDataGrid()
         {
+            dataGridView1.DefaultCellStyle.NullValue = "0";
+            dataGridView2.DefaultCellStyle.NullValue = "0";
+            dataGridView3.DefaultCellStyle.NullValue = "0";
+            dataGridView4.DefaultCellStyle.NullValue = "0";
+
             dataGridView1.Rows.Clear();
             dataGridView1.Columns.Clear();
 
@@ -210,17 +215,17 @@ namespace ProductionPlan
         {
             productList = new List<Product>();
 
-            for (int i = 0; i < dataGridView1.RowCount; i++)
+            for (int i = 0; i < dataGridView1.ColumnCount; i++)
             {
                 Product tempProduct = new Product(operations);
                 int[] duration = new int[operations];
 
-                for (int j = 0; j < dataGridView1.ColumnCount; j++)
+                for (int j = 0; j < dataGridView1.RowCount; j++)
                 {
                     duration[j] = Convert.ToInt32(dataGridView1.Rows[j].Cells[i].Value); 
                 }
 
-                for (int j = 0; j < dataGridView1.ColumnCount; j++)
+                for (int j = 0; j < dataGridView1.RowCount; j++)
                 {
                     tempProduct.Duration.SetValue(duration[j], j);
                 }
@@ -337,7 +342,8 @@ namespace ProductionPlan
                         int times = 0;
                         for (int j = 0; j < orders * products; j++)
                         {
-                            times += Convert.ToInt32(dataGridView5.Rows[j * operations + i].Cells[currentDate].Value);
+                            if(currentDate >= 0)
+                                times += Convert.ToInt32(dataGridView5.Rows[j * operations + i].Cells[currentDate].Value);
                         }
 
                         int remainder = productList.ElementAt(currentProduct).Duration.ElementAt(i);
