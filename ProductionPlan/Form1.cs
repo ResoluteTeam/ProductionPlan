@@ -280,8 +280,54 @@ namespace ProductionPlan
             if (tabControl1.SelectedIndex == 2)
             {
                 createResultGrid();
-                calculateByPriority();
+                calculateByTime();
             }
+        }
+
+        private void dataGridView1_CellValidating(object sender, DataGridViewCellValidatingEventArgs e)
+        {
+            int newInteger;
+
+            if (!int.TryParse(e.FormattedValue.ToString(),
+                out newInteger) || newInteger < 0)
+            {
+                e.Cancel = true;
+                MessageBox.Show("Некорректный ввод!");
+            }
+        }
+        private void dataGridView2_CellValidating(object sender, DataGridViewCellValidatingEventArgs e)
+        {
+            int newInteger;
+
+            if (!int.TryParse(e.FormattedValue.ToString(),
+                out newInteger) || newInteger < 0)
+            {
+                e.Cancel = true;
+                MessageBox.Show("Некорректный ввод!");
+            }
+        }
+        private void dataGridView3_CellValidating(object sender, DataGridViewCellValidatingEventArgs e)
+        {
+            int newInteger;
+
+            if (!int.TryParse(e.FormattedValue.ToString(),
+                out newInteger) || newInteger < 0)
+            {
+                e.Cancel = true;
+                MessageBox.Show("Некорректный ввод!");
+            }
+        }
+        private void dataGridView4_CellValidating(object sender, DataGridViewCellValidatingEventArgs e)
+        {
+            float newInteger;
+
+            if (!float.TryParse(e.FormattedValue.ToString(),
+                out newInteger) || newInteger < 0 || newInteger > 1)
+            {
+                e.Cancel = true;
+                MessageBox.Show("Некорректный ввод!\nВведите число от 0 до 1");
+            }
+
         }
 
         private void createResultGrid()
@@ -314,55 +360,7 @@ namespace ProductionPlan
             dataGridView5.AutoResizeRowHeadersWidth(DataGridViewRowHeadersWidthSizeMode.AutoSizeToAllHeaders);
         }
 
-        private void dataGridView1_CellValidating(object sender, DataGridViewCellValidatingEventArgs e)
-        {
-            int newInteger;
-
-            if (!int.TryParse(e.FormattedValue.ToString(),
-                out newInteger) || newInteger < 0)
-            {
-                e.Cancel = true;
-                MessageBox.Show("Некорректный ввод!");
-            }
-        }
-
-        private void dataGridView2_CellValidating(object sender, DataGridViewCellValidatingEventArgs e)
-        {
-            int newInteger;
-
-            if (!int.TryParse(e.FormattedValue.ToString(),
-                out newInteger) || newInteger < 0)
-            {
-                e.Cancel = true;
-                MessageBox.Show("Некорректный ввод!");
-            }
-        }
-
-        private void dataGridView3_CellValidating(object sender, DataGridViewCellValidatingEventArgs e)
-        {
-            int newInteger;
-
-            if (!int.TryParse(e.FormattedValue.ToString(),
-                out newInteger) || newInteger < 0)
-            {
-                e.Cancel = true;
-                MessageBox.Show("Некорректный ввод!");
-            }
-        }
-        private void dataGridView4_CellValidating(object sender, DataGridViewCellValidatingEventArgs e)
-        {
-            float newInteger;
-
-            if (!float.TryParse(e.FormattedValue.ToString(),
-                out newInteger) || newInteger < 0 || newInteger > 1)
-            {
-                e.Cancel = true;
-                MessageBox.Show("Некорректный ввод!\nВведите число от 0 до 1");
-            }
-
-        }
-
-        private bool calculateByPriority()
+        private void calculateByPriority()
         {
             ordersList = ordersList.OrderByDescending(Order => Order.Priority).ToList();
             int currentProduct;
@@ -463,7 +461,139 @@ namespace ProductionPlan
 
                 
             }
-            return true;
+        }
+
+        private void calculateByTime()
+        {
+            ordersList = ordersList.OrderByDescending(Order => Order.Priority).ToList();
+            List<Order> tempOrdersList = new List<Order>();
+            for(int i = 0; i < ordersList.Count; i++)
+            {
+                if (ordersList.ElementAt(i).Enabled == true)
+                    tempOrdersList.Add(ordersList.ElementAt(i));
+            }
+
+            int currentProduct;
+
+            while (tempOrdersList.Any())
+            {
+                int currentDate = tempOrdersList.ElementAt(0).Time - 1;
+                currentProduct = -1;
+                for (int i = 0; i < products; i++)
+                {
+                    if (tempOrdersList.ElementAt(0).Products[i] != 0)
+                    {
+                        currentProduct = i; //Выбираем продукт из списка
+                        i = products;
+                    }
+                }
+
+                if (currentProduct < 0)
+                {
+                    tempOrdersList.RemoveAt(0); //Если количество в списке каждого продукта - 0, идем до след. заказа
+                }
+                else // иначе начинаем записывать текущий продукт в таблицу   
+                {
+                    for (int i = 0; i < operations; i++)
+                    {
+                        int times = 0;
+                        int temp = 0;
+                        for (int j = 0; j < operations; j++)
+                        {
+                            if (currentDate >= 0)
+                                times += Convert.ToInt32(dataGridView5.Rows[tempOrdersList.ElementAt(0).Index * products * operations + currentProduct * products + j].Cells[currentDate].Value);
+                        }
+
+                        for (int k = 0; k < orders * products; k++)
+                        {
+                            if (currentDate >= 0)
+                                temp += Convert.ToInt32(dataGridView5.Rows[k * operations + i].Cells[currentDate].Value);
+                        }
+
+                        if (temp > times)
+                            times = temp;
+
+                        int remainder = productList.ElementAt(currentProduct).Duration.ElementAt(i);
+
+                        while (remainder > 8 - times)
+                        {
+                            currentDate--;
+
+                            if (currentDate == -1)
+                            {
+                                for (int n = 0; n < ordersList.Count; n++)
+                                {
+                                    if (ordersList.ElementAt(n).Index == tempOrdersList.ElementAt(0).Index)
+                                    {
+                                        ordersList.ElementAt(n).Enabled = false;
+                                    }
+
+                                    int[] amount = new int[products];
+                                    for (int j = 0; j < dataGridView2.ColumnCount; j++)
+                                    {
+                                        amount[j] = Convert.ToInt32(dataGridView2.Rows[ordersList.ElementAt(n).Index].Cells[j].Value);
+                                    }
+                                    for (int j = 0; j < dataGridView2.ColumnCount; j++)
+                                    {
+                                        ordersList.ElementAt(n).Products.SetValue(amount[j], j);
+                                    }
+                                }
+
+ 
+                                //getDataFromProductGrid(); //Перерасчёт таблицы
+                                //getDataFromOrdersGrid();
+                                tempOrdersList = tempOrdersList.OrderByDescending(Order => Order.Priority).ToList();
+                                createResultGrid();
+                                currentProduct = -1;
+                                i = operations;
+                                tempOrdersList.Clear();
+
+                                for (int n = 0; n < ordersList.Count; n++)
+                                {
+                                    if (ordersList.ElementAt(n).Enabled == true)
+                                        tempOrdersList.Add(ordersList.ElementAt(n));
+                                }
+                                break;
+                            }
+
+                            if (times < 8)
+                            {
+                                dataGridView5.Rows[tempOrdersList.ElementAt(0).Index * products * operations + currentProduct * operations + i].Cells[currentDate + 1].Value =
+                                    Convert.ToInt32(dataGridView5.Rows[tempOrdersList.ElementAt(0).Index * products * operations + currentProduct * operations + i].Cells[currentDate + 1].Value) + (8 - times);
+                                remainder = remainder - (8 - times);
+                            }
+
+                            times = 0;
+                            temp = 0;
+                            for (int j = 0; j < operations; j++)
+                            {
+                                if (currentDate >= 0)
+                                    times += Convert.ToInt32(dataGridView5.Rows[tempOrdersList.ElementAt(0).Index * products * operations + currentProduct * products + j].Cells[currentDate].Value);
+                            }
+
+                            for (int k = 0; k < orders * products; k++)
+                            {
+                                if (currentDate >= 0)
+                                    temp += Convert.ToInt32(dataGridView5.Rows[k * operations + i].Cells[currentDate].Value);
+                            }
+
+                            if (temp > times)
+                                times = temp;
+                        }
+                        if (currentDate != -1)
+                        {
+                            dataGridView5.Rows[tempOrdersList.ElementAt(0).Index * products * operations + currentProduct * operations + i].Cells[currentDate].Value =
+                            Convert.ToInt32(dataGridView5.Rows[tempOrdersList.ElementAt(0).Index * products * operations + currentProduct * operations + i].Cells[currentDate].Value) +
+                            remainder;
+                        }
+                    }
+
+                    if (currentProduct != -1)
+                        tempOrdersList.ElementAt(0).Products[currentProduct]--;
+                }
+
+
+            }
         }
     }
 
@@ -496,6 +626,8 @@ namespace ProductionPlan
         float priority;
         int index;
         int time;
+
+        bool enabled = true;
 
         public float Priority
         {
@@ -546,6 +678,19 @@ namespace ProductionPlan
             set
             {
                 time = value;
+            }
+        }
+
+        public bool Enabled
+        {
+            get
+            {
+                return enabled;
+            }
+
+            set
+            {
+                enabled = value;
             }
         }
 
