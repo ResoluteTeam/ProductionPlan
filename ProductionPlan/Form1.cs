@@ -73,24 +73,45 @@ namespace ProductionPlan
         {
             if (!string.IsNullOrWhiteSpace(textBox1.Text) && Convert.ToInt32(textBox1.Text) != 0)
             {
-                products = Convert.ToInt32(textBox1.Text);
-                updateDataGrid();
+                if (Convert.ToInt32(textBox1.Text) <= 250)
+                {
+                    products = Convert.ToInt32(textBox1.Text);
+                    updateDataGrid();
+                } else
+                {
+                    MessageBox.Show("Некорректный ввод!\nВведите число от 0 до 250");
+                    textBox1.Text = "2";
+                }
             }
         }
         private void textBox2_TextChanged(object sender, EventArgs e)
         {
             if (!string.IsNullOrWhiteSpace(textBox2.Text) && Convert.ToInt32(textBox2.Text) != 0)
             {
-                operations = Convert.ToInt32(textBox2.Text);
-                updateDataGrid();
+                if (Convert.ToInt32(textBox2.Text) <= 250)
+                {
+                    operations = Convert.ToInt32(textBox2.Text);
+                    updateDataGrid();
+                } else
+                {
+                    MessageBox.Show("Некорректный ввод!\nВведите число от 0 до 250");
+                    textBox2.Text = "2";
+                }
             }
         }
         private void textBox3_TextChanged(object sender, EventArgs e)
         {
             if (!string.IsNullOrWhiteSpace(textBox3.Text) && Convert.ToInt32(textBox3.Text) != 0)
             {
-                orders = Convert.ToInt32(textBox3.Text);
-                updateDataGrid();
+                if (Convert.ToInt32(textBox3.Text) <= 250)
+                {
+                    orders = Convert.ToInt32(textBox3.Text);
+                    updateDataGrid();
+                } else
+                {
+                    MessageBox.Show("Некорректный ввод!\nВведите число от 0 до 250");
+                    textBox3.Text = "2";
+                }
             }
         }
 
