@@ -484,6 +484,16 @@ namespace ProductionPlan
             }
         }
 
+        private void dataGridView5_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+
+        }
+
+        private void radioButton2_CheckedChanged(object sender, EventArgs e)
+        {
+
+        }
+
         private void calculateByTime()
         {
             ordersList = ordersList.OrderByDescending(Order => Order.Priority).ToList();
