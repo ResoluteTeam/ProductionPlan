@@ -340,9 +340,12 @@ namespace ProductionPlan
                             times += Convert.ToInt32(dataGridView5.Rows[j * operations + i].Cells[currentDate].Value);
                         }
 
-                        while (productList.ElementAt(currentProduct).Duration.ElementAt(i) > 8 - times)
+                        int remainder = productList.ElementAt(currentProduct).Duration.ElementAt(i);
+
+                        while (remainder > 8 - times)
                         {
                             currentDate--;
+
                             if (currentDate == -1)
                             {
                                 for (int n = 0; n < dataGridView3.RowCount; n++)
@@ -357,19 +360,25 @@ namespace ProductionPlan
                                 i = -1;
                                 break;
                             }
-   
+
+                            if (times < 8)
+                            {
+                                dataGridView5.Rows[ordersList.ElementAt(0).Index * products * operations + currentProduct * operations + i].Cells[currentDate + 1].Value = 
+                                    Convert.ToInt32(dataGridView5.Rows[ordersList.ElementAt(0).Index * products * operations + currentProduct * operations + i].Cells[currentDate + 1].Value) + (remainder - (8-times));
+                                remainder = remainder - (8 - times);
+                            }
+                            
                             times = 0;
                             for (int j = 0; j < orders * products; j++)
                             {
                                 times += Convert.ToInt32(dataGridView5.Rows[j * operations + i].Cells[currentDate].Value);
                             }
                         }
-
                         if (currentDate != -1)
                         {
                             dataGridView5.Rows[ordersList.ElementAt(0).Index * products * operations + currentProduct * operations + i].Cells[currentDate].Value =
                             Convert.ToInt32(dataGridView5.Rows[ordersList.ElementAt(0).Index * products * operations + currentProduct * operations + i].Cells[currentDate].Value) +
-                            productList.ElementAt(currentProduct).Duration.ElementAt(i);
+                            remainder;
                         }
                     }
 
