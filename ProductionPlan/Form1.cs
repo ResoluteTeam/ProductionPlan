@@ -293,10 +293,10 @@ namespace ProductionPlan
             dataGridView5.RowCount = orders * products * operations;
 
 
-            for (int i = 0; i < maxTime; i++)
+            for (int i = (maxTime - 1); i >= 0; i--)
             {
-                dataGridView5.Columns[i].Name = "День " + (i + 1).ToString();
-                dataGridView5.Columns[i].SortMode = DataGridViewColumnSortMode.NotSortable;
+                dataGridView5.Columns[maxTime - 1 - i].Name = "День " + (i + 1).ToString();
+                dataGridView5.Columns[maxTime - 1 - i].SortMode = DataGridViewColumnSortMode.NotSortable;
             }
 
             for (int i = 0; i < orders; i++)
@@ -332,19 +332,29 @@ namespace ProductionPlan
                     }
                 }
 
-                if (currentProduct == -1)
+                if (currentProduct < 0)
                 {
                     ordersList.RemoveAt(0); //Если количество в списке каждого продукта - 0, идем до след. заказа
                 } else // иначе начинаем записывать текущий продукт в таблицу   
                 {
-                    for (int i = operations - 1; i >= 0; i--)
+                    for (int i = 0; i < operations; i++)
                     {
                         int times = 0;
-                        for (int j = 0; j < orders * products; j++)
+                        int temp = 0;
+                        for (int j = 0; j < operations; j++)
                         {
                             if(currentDate >= 0)
-                                times += Convert.ToInt32(dataGridView5.Rows[j * operations + i].Cells[currentDate].Value);
+                                times += Convert.ToInt32(dataGridView5.Rows[ordersList.ElementAt(0).Index * products * operations + currentProduct * products + j].Cells[currentDate].Value);
                         }
+
+                        for (int k = 0; k < orders * products; k++)
+                        {
+                            if (currentDate >= 0)
+                                temp += Convert.ToInt32(dataGridView5.Rows[k * operations + i].Cells[currentDate].Value);
+                        }
+
+                        if (temp > times)
+                            times = temp;
 
                         int remainder = productList.ElementAt(currentProduct).Duration.ElementAt(i);
 
@@ -363,22 +373,33 @@ namespace ProductionPlan
                                 ordersList = ordersList.OrderByDescending(Order => Order.Priority).ToList();
                                 createResultGrid();
                                 currentProduct = -1;
-                                i = -1;
+                                i = operations;
                                 break;
                             }
 
                             if (times < 8)
                             {
                                 dataGridView5.Rows[ordersList.ElementAt(0).Index * products * operations + currentProduct * operations + i].Cells[currentDate + 1].Value = 
-                                    Convert.ToInt32(dataGridView5.Rows[ordersList.ElementAt(0).Index * products * operations + currentProduct * operations + i].Cells[currentDate + 1].Value) + (remainder - (8-times));
+                                    Convert.ToInt32(dataGridView5.Rows[ordersList.ElementAt(0).Index * products * operations + currentProduct * operations + i].Cells[currentDate + 1].Value) + (8 - times);
                                 remainder = remainder - (8 - times);
                             }
                             
                             times = 0;
-                            for (int j = 0; j < orders * products; j++)
+                            temp = 0;
+                            for (int j = 0; j < operations; j++)
                             {
-                                times += Convert.ToInt32(dataGridView5.Rows[j * operations + i].Cells[currentDate].Value);
+                                if (currentDate >= 0)
+                                    times += Convert.ToInt32(dataGridView5.Rows[ordersList.ElementAt(0).Index * products * operations + currentProduct * products + j].Cells[currentDate].Value);
                             }
+
+                            for (int k = 0; k < orders * products; k++)
+                            {
+                                if (currentDate >= 0)
+                                    temp += Convert.ToInt32(dataGridView5.Rows[k * operations + i].Cells[currentDate].Value);
+                            }
+
+                            if (temp > times)
+                                times = temp;
                         }
                         if (currentDate != -1)
                         {
