@@ -491,7 +491,26 @@ namespace ProductionPlan
 
         private void radioButton2_CheckedChanged(object sender, EventArgs e)
         {
+            if (radioButton2.Checked == true)
+            {
+                getDataFromProductGrid();
+                getDataFromOrdersGrid();
 
+                createResultGrid();
+                calculateByTime();
+            }
+        }
+
+        private void radioButton1_CheckedChanged(object sender, EventArgs e)
+        {
+            if (radioButton1.Checked == true)
+            {
+                getDataFromProductGrid();
+                getDataFromOrdersGrid();
+
+                createResultGrid();
+                calculateByPriority();
+            }
         }
 
         private void calculateByTime()
