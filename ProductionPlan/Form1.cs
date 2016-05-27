@@ -314,6 +314,54 @@ namespace ProductionPlan
             dataGridView5.AutoResizeRowHeadersWidth(DataGridViewRowHeadersWidthSizeMode.AutoSizeToAllHeaders);
         }
 
+        private void dataGridView1_CellValidating(object sender, DataGridViewCellValidatingEventArgs e)
+        {
+            int newInteger;
+
+            if (!int.TryParse(e.FormattedValue.ToString(),
+                out newInteger) || newInteger < 0)
+            {
+                e.Cancel = true;
+                MessageBox.Show("Некорректный ввод!");
+            }
+        }
+
+        private void dataGridView2_CellValidating(object sender, DataGridViewCellValidatingEventArgs e)
+        {
+            int newInteger;
+
+            if (!int.TryParse(e.FormattedValue.ToString(),
+                out newInteger) || newInteger < 0)
+            {
+                e.Cancel = true;
+                MessageBox.Show("Некорректный ввод!");
+            }
+        }
+
+        private void dataGridView3_CellValidating(object sender, DataGridViewCellValidatingEventArgs e)
+        {
+            int newInteger;
+
+            if (!int.TryParse(e.FormattedValue.ToString(),
+                out newInteger) || newInteger < 0)
+            {
+                e.Cancel = true;
+                MessageBox.Show("Некорректный ввод!");
+            }
+        }
+        private void dataGridView4_CellValidating(object sender, DataGridViewCellValidatingEventArgs e)
+        {
+            float newInteger;
+
+            if (!float.TryParse(e.FormattedValue.ToString(),
+                out newInteger) || newInteger < 0 || newInteger > 1)
+            {
+                e.Cancel = true;
+                MessageBox.Show("Некорректный ввод!\nВведите число от 0 до 1");
+            }
+
+        }
+
         private bool calculateByPriority()
         {
             ordersList = ordersList.OrderByDescending(Order => Order.Priority).ToList();
