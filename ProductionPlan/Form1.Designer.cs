@@ -219,7 +219,7 @@
             this.dataGridView4.Location = new System.Drawing.Point(408, 215);
             this.dataGridView4.Name = "dataGridView4";
             this.dataGridView4.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.AutoSizeToAllHeaders;
-            this.dataGridView4.Size = new System.Drawing.Size(269, 153);
+            this.dataGridView4.Size = new System.Drawing.Size(269, 159);
             this.dataGridView4.TabIndex = 2;
             this.dataGridView4.CellValidating += new System.Windows.Forms.DataGridViewCellValidatingEventHandler(this.dataGridView4_CellValidating);
             // 
@@ -265,21 +265,19 @@
             this.groupBox1.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
             this.groupBox1.Controls.Add(this.radioButton2);
             this.groupBox1.Controls.Add(this.radioButton1);
-            this.groupBox1.Location = new System.Drawing.Point(3, 340);
+            this.groupBox1.Location = new System.Drawing.Point(3, 336);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(676, 31);
+            this.groupBox1.Size = new System.Drawing.Size(676, 35);
             this.groupBox1.TabIndex = 1;
             this.groupBox1.TabStop = false;
             // 
             // radioButton2
             // 
             this.radioButton2.AutoSize = true;
-            this.radioButton2.Checked = true;
-            this.radioButton2.Location = new System.Drawing.Point(435, 8);
+            this.radioButton2.Location = new System.Drawing.Point(429, 12);
             this.radioButton2.Name = "radioButton2";
             this.radioButton2.Size = new System.Drawing.Size(236, 17);
             this.radioButton2.TabIndex = 2;
-            this.radioButton2.TabStop = true;
             this.radioButton2.Text = "Оптимальный план по критерию \"Время\"";
             this.radioButton2.UseVisualStyleBackColor = true;
             this.radioButton2.CheckedChanged += new System.EventHandler(this.radioButton2_CheckedChanged);
@@ -287,10 +285,12 @@
             // radioButton1
             // 
             this.radioButton1.AutoSize = true;
-            this.radioButton1.Location = new System.Drawing.Point(6, 8);
+            this.radioButton1.Checked = true;
+            this.radioButton1.Location = new System.Drawing.Point(6, 12);
             this.radioButton1.Name = "radioButton1";
             this.radioButton1.Size = new System.Drawing.Size(253, 17);
             this.radioButton1.TabIndex = 1;
+            this.radioButton1.TabStop = true;
             this.radioButton1.Text = "Оптимальный план по критерию \"Важность\"";
             this.radioButton1.UseVisualStyleBackColor = true;
             this.radioButton1.CheckedChanged += new System.EventHandler(this.radioButton1_CheckedChanged);
@@ -388,10 +388,10 @@
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.TextBox textBox3;
         private System.Windows.Forms.DataGridView dataGridView5;
+        private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
+        private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.RadioButton radioButton2;
         private System.Windows.Forms.RadioButton radioButton1;
-        private System.Windows.Forms.GroupBox groupBox1;
-        private System.ComponentModel.BackgroundWorker backgroundWorker1;
     }
 }
 
