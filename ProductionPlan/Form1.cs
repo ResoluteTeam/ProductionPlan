@@ -448,7 +448,7 @@ namespace ProductionPlan
                         for (int j = 0; j < operations; j++)
                         {
                             if(currentDate >= 0)
-                                times += Convert.ToInt32(dataGridView5.Rows[ordersList.ElementAt(0).Index * products * operations + currentProduct * products + j].Cells[currentDate].Value);
+                                times += Convert.ToInt32(dataGridView5.Rows[ordersList.ElementAt(0).Index * products * operations + currentProduct * operations + j].Cells[currentDate].Value);
                         }
 
                         for (int k = 0; k < orders * products; k++)
@@ -558,7 +558,7 @@ namespace ProductionPlan
                         for (int j = 0; j < operations; j++)
                         {
                             if (currentDate >= 0)
-                                times += Convert.ToInt32(dataGridView5.Rows[tempOrdersList.ElementAt(0).Index * products * operations + currentProduct * products + j].Cells[currentDate].Value);
+                                times += Convert.ToInt32(dataGridView5.Rows[tempOrdersList.ElementAt(0).Index * products * operations + currentProduct * operations + j].Cells[currentDate].Value);
                         }
 
                         for (int k = 0; k < orders * products; k++)
