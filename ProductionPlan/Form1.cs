@@ -772,10 +772,11 @@ namespace ProductionPlan
                 Excel.Worksheet saveWorksheet;
 
                 saveApp = new Excel.Application();
+                saveApp.DisplayAlerts = false;
 
                 object misValue = System.Reflection.Missing.Value;
 
-                saveWorkbook = saveApp.Workbooks.Add(misValue);
+                saveWorkbook = saveApp.Workbooks.Add(System.Reflection.Missing.Value);
                 saveWorksheet = (Excel.Worksheet)saveWorkbook.Worksheets.get_Item(1);
 
                 for (int i = 0; i < dataGridView5.RowCount; i ++)
@@ -786,7 +787,7 @@ namespace ProductionPlan
                     }
                 }
 
-                saveWorkbook.SaveAs(saveFileDialog1.FileName, Excel.XlFileFormat.xlWorkbookNormal, misValue, misValue, misValue, misValue, Excel.XlSaveAsAccessMode.xlExclusive, misValue, misValue, misValue, misValue, misValue);
+                saveWorkbook.SaveAs(saveFileDialog1.FileName, Excel.XlFileFormat.xlWorkbookDefault, misValue, misValue, misValue, misValue, Excel.XlSaveAsAccessMode.xlExclusive, misValue, misValue, misValue, misValue, misValue);
                 saveWorkbook.Close();
                 saveApp.Quit();
                 
