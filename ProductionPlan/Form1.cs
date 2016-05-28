@@ -33,6 +33,7 @@ namespace ProductionPlan
             products = Convert.ToInt32(textBox1.Text);
             operations = Convert.ToInt32(textBox2.Text);
             orders = Convert.ToInt32(textBox3.Text);
+            terms = new int[orders];
 
             dataGridView1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
             updateDataGrid();
@@ -261,7 +262,7 @@ namespace ProductionPlan
         {
             if (terms[0] == 0)
             {
-                for (int i = 0; i < products; i++)
+                for (int i = 0; i < orders; i++)
                 {
                     terms[i] = Convert.ToInt32(dataGridView3.Rows[i].Cells[0].Value);
 
@@ -699,6 +700,16 @@ namespace ProductionPlan
 
                 createResultGrid();
                 calculateByTime();
+            }
+        }
+
+        private void dataGridView3_CellValueChanged(object sender, DataGridViewCellEventArgs e)
+        {
+            terms = new int[orders];
+            for (int i = 0; i < dataGridView3.RowCount; i++)
+            {
+                terms[i] = Convert.ToInt32(dataGridView3.Rows[i].Cells[0].Value);
+
             }
         }
 
