@@ -186,8 +186,9 @@ namespace ProductionPlan
             dataGridView5.AutoResizeRowHeadersWidth(DataGridViewRowHeadersWidthSizeMode.AutoSizeToAllHeaders);
 
             terms = new int[orders];
-            getDataFromOrdersGrid();
             getDataFromProductGrid();
+            getDataFromOrdersGrid();
+            
         }
 
         private void fileFromExcel()
