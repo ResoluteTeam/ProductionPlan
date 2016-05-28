@@ -301,7 +301,10 @@ namespace ProductionPlan
             if (tabControl1.SelectedIndex == 2)
             {
                 createResultGrid();
-                calculateByTime();
+                if (radioButton1.Checked)
+                    calculateByPriority();
+                if (radioButton2.Checked)
+                    calculateByTime();
             }
         }
 
@@ -357,7 +360,7 @@ namespace ProductionPlan
             dataGridView5.Columns.Clear();
 
             dataGridView5.ColumnCount = maxTime;
-            dataGridView5.RowCount = orders * products * operations;
+            dataGridView5.RowCount = orders * products * operations + operations + 1;
 
 
             for (int i = (maxTime - 1); i >= 0; i--)
@@ -368,15 +371,20 @@ namespace ProductionPlan
 
             for (int i = 0; i < orders; i++)
             {
-                dataGridView5.Rows[i * products * operations].HeaderCell.Value = "Заказ№" + (i + 1).ToString();
+                dataGridView5.Rows[i * products * operations].HeaderCell.Value = " Заказ №" + (i + 1).ToString();
                 for (int j = 0; j < products; j++)
                 {
-                    dataGridView5.Rows[i * products * operations + j * operations].HeaderCell.Value += " Изделие№" + (j + 1).ToString();
+                    dataGridView5.Rows[i * products * operations + j * operations].HeaderCell.Value += " Изделие №" + (j + 1).ToString();
                     for (int k = 0; k < operations; k++)
                     {
-                        dataGridView5.Rows[i * products * operations + j * operations + k].HeaderCell.Value += " Операция№" + (k + 1).ToString();
+                        dataGridView5.Rows[i * products * operations + j * operations + k].HeaderCell.Value += " Операция №" + (k + 1).ToString();
                     }
                 }
+            }
+
+            for (int i = 0; i < operations; i++)
+            {
+                dataGridView5.Rows[orders * products * operations + i + 1].HeaderCell.Value = "Станок №" + (i + 1).ToString();
             }
             dataGridView5.AutoResizeRowHeadersWidth(DataGridViewRowHeadersWidthSizeMode.AutoSizeToAllHeaders);
         }
@@ -478,46 +486,16 @@ namespace ProductionPlan
 
                     if(currentProduct != -1)
                         ordersList.ElementAt(0).Products[currentProduct]--;
-                }
-
-                
+                }       
             }
-        }
-
-        private void dataGridView5_CellContentClick(object sender, DataGridViewCellEventArgs e)
-        {
-
-        }
-
-        private void radioButton2_CheckedChanged(object sender, EventArgs e)
-        {
-            if (radioButton2.Checked == true)
-            {
-                getDataFromProductGrid();
-                getDataFromOrdersGrid();
-
-                createResultGrid();
-                calculateByTime();
-            }
-        }
-
-        private void radioButton1_CheckedChanged(object sender, EventArgs e)
-        {
-            if (radioButton1.Checked == true)
-            {
-                getDataFromProductGrid();
-                getDataFromOrdersGrid();
-
-                createResultGrid();
-                calculateByPriority();
-            }
+            calculateTime();
         }
 
         private void calculateByTime()
         {
             ordersList = ordersList.OrderByDescending(Order => Order.Priority).ToList();
             List<Order> tempOrdersList = new List<Order>();
-            for(int i = 0; i < ordersList.Count; i++)
+            for (int i = 0; i < ordersList.Count; i++)
             {
                 if (ordersList.ElementAt(i).Enabled == true)
                     tempOrdersList.Add(ordersList.ElementAt(i));
@@ -589,7 +567,7 @@ namespace ProductionPlan
                                     }
                                 }
 
- 
+
                                 //getDataFromProductGrid(); //Перерасчёт таблицы
                                 //getDataFromOrdersGrid();
                                 tempOrdersList = tempOrdersList.OrderByDescending(Order => Order.Priority).ToList();
@@ -644,7 +622,70 @@ namespace ProductionPlan
 
 
             }
+            calculateTime();
         }
+
+        private void calculateTime()
+        {
+            int day = 0;
+            int j = 0;
+            int i = 0;
+            int k = 0;
+
+            while (day < maxTime)
+            { 
+                while (i < operations)
+                {
+                    while (j < orders)
+                    {
+                        while (k < products)
+                        {
+                            dataGridView5.Rows[orders * products * operations + i + 1].Cells[day].Value =
+                                (Convert.ToInt32(dataGridView5.Rows[orders * products * operations + i + 1].Cells[day].Value)
+                                + Convert.ToInt32(dataGridView5.Rows[j * products * operations + k * operations + i].Cells[day].Value)).ToString();
+                            k++;
+                        }
+                        j++;
+                        k = 0;
+                    }
+                    i++;
+                    j = 0;
+                }
+                i = 0;
+                day++;
+            }
+        }
+
+        private void dataGridView5_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+
+        }
+
+        private void radioButton2_CheckedChanged(object sender, EventArgs e)
+        {
+            if (radioButton2.Checked == true)
+            {
+                getDataFromProductGrid();
+                getDataFromOrdersGrid();
+
+                createResultGrid();
+                calculateByTime();
+            }
+        }
+
+        private void radioButton1_CheckedChanged(object sender, EventArgs e)
+        {
+            if (radioButton1.Checked == true)
+            {
+                getDataFromProductGrid();
+                getDataFromOrdersGrid();
+
+                createResultGrid();
+                calculateByPriority();
+            }
+        }
+
+
     }
 
     public class Product
