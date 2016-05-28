@@ -46,14 +46,13 @@ namespace ProductionPlan
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
-            /*          workbook.Close(false, false, false);
-                        app.Quit();
-                        System.Runtime.InteropServices.Marshal.ReleaseComObject(app);
-                        app = null;
-                        workbook = null;
-                        worksheet = null;
-                        System.GC.Collect();
-            */
+            //workbook.Close(false, false, false);
+            //app.Quit();
+            //System.Runtime.InteropServices.Marshal.ReleaseComObject(app);
+            //app = null;
+            //workbook = null;
+            //worksheet = null;
+            //System.GC.Collect();
         }
 
         private void changeSheet(int num)
@@ -192,13 +191,13 @@ namespace ProductionPlan
             
         }
 
-        private void fileFromExcel()
+        private void fileFromExcel(string location)
         {
             app = new Excel.Application();
 
             try
             {
-                workbook = app.Workbooks.Open(Application.StartupPath + @"\ProductionPlan.xlsx");
+                workbook = app.Workbooks.Open(location);
             }
             catch
             {
@@ -208,10 +207,44 @@ namespace ProductionPlan
             changeSheet(1);
 
             products = lastColumn;
+            textBox1.Text = products.ToString();
             operations = lastRow;
+            textBox2.Text = operations.ToString();
 
             changeSheet(2);
             orders = lastRow;
+            textBox3.Text = orders.ToString();
+
+            updateDataGrid();
+
+
+            worksheet = (Excel.Worksheet)workbook.Worksheets.get_Item(1);
+            for (int i = 0; i < worksheet.UsedRange.Rows.Count; i++)
+            {
+                for (int j = 0; j < worksheet.UsedRange.Columns.Count; j++)
+                {
+                    dataGridView1.Rows[i].Cells[j].Value = worksheet.Cells[i + 1, j + 1].Value.ToString();
+                }
+            }
+
+            worksheet = (Excel.Worksheet)workbook.Worksheets.get_Item(2);
+            for (int i = 0; i < worksheet.UsedRange.Rows.Count; i++)
+            {
+                for (int j = 0; j < worksheet.UsedRange.Columns.Count; j++)
+                {
+                    dataGridView2.Rows[i].Cells[j].Value = worksheet.Cells[i + 1, j + 1].Value.ToString();
+                }
+            }
+
+            worksheet = (Excel.Worksheet)workbook.Worksheets.get_Item(3);
+
+            for (int i = 0; i < orders; i++)
+            {
+                dataGridView3.Rows[i].Cells[0].Value = worksheet.Cells[i + 1, 1].Value.ToString();
+                dataGridView4.Rows[i].Cells[0].Value = worksheet.Cells[i + 1, 2].Value.ToString();
+            }
+            workbook.Close();
+            app.Quit();
         }
 
         private void textBox1_KeyPress(object sender, KeyPressEventArgs e)
@@ -722,6 +755,44 @@ namespace ProductionPlan
             }
         }
 
+        private void открытьToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (openFileDialog1.ShowDialog() == DialogResult.OK)
+            {
+                fileFromExcel(openFileDialog1.FileName);
+            }
+        }
+
+        private void сохранитьToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (saveFileDialog1.ShowDialog() == DialogResult.OK)
+            {
+                Excel.Application saveApp;
+                Excel.Workbook saveWorkbook;
+                Excel.Worksheet saveWorksheet;
+
+                saveApp = new Excel.Application();
+
+                object misValue = System.Reflection.Missing.Value;
+
+                saveWorkbook = saveApp.Workbooks.Add(misValue);
+                saveWorksheet = (Excel.Worksheet)saveWorkbook.Worksheets.get_Item(1);
+
+                for (int i = 0; i < dataGridView5.RowCount; i ++)
+                {
+                    for (int j = 0; j < dataGridView5.ColumnCount; j++)
+                    {
+                        saveWorksheet.Cells[i + 1, j + 1].Value = dataGridView5.Rows[i].Cells[j].Value;
+                    }
+                }
+
+                saveWorkbook.SaveAs(saveFileDialog1.FileName, Excel.XlFileFormat.xlWorkbookNormal, misValue, misValue, misValue, misValue, Excel.XlSaveAsAccessMode.xlExclusive, misValue, misValue, misValue, misValue, misValue);
+                saveWorkbook.Close();
+                saveApp.Quit();
+                
+            }
+        }
+
         private void radioButton1_CheckedChanged(object sender, EventArgs e)
         {
             if (radioButton1.Checked == true)
@@ -733,7 +804,6 @@ namespace ProductionPlan
                 calculateByPriority();
             }
         }
-
 
     }
 
