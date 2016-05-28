@@ -249,6 +249,7 @@
             this.dataGridView2.Size = new System.Drawing.Size(404, 374);
             this.dataGridView2.TabIndex = 0;
             this.dataGridView2.CellValidating += new System.Windows.Forms.DataGridViewCellValidatingEventHandler(this.dataGridView2_CellValidating);
+            this.dataGridView2.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView2_CellValueChanged);
             // 
             // tabPage3
             // 

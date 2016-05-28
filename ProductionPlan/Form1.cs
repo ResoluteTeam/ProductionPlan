@@ -387,7 +387,6 @@ namespace ProductionPlan
             dataGridView5.Rows.Clear();
             dataGridView5.Columns.Clear();
 
-            //if(radioButton1.Checked)
             dataGridView5.ColumnCount = maxTime;
             dataGridView5.RowCount = orders * products * operations + operations + 1;
 
@@ -703,6 +702,16 @@ namespace ProductionPlan
         }
 
         private void dataGridView3_CellValueChanged(object sender, DataGridViewCellEventArgs e)
+        {
+            terms = new int[orders];
+            for (int i = 0; i < dataGridView3.RowCount; i++)
+            {
+                terms[i] = Convert.ToInt32(dataGridView3.Rows[i].Cells[0].Value);
+
+            }
+        }
+
+        private void dataGridView2_CellValueChanged(object sender, DataGridViewCellEventArgs e)
         {
             terms = new int[orders];
             for (int i = 0; i < dataGridView3.RowCount; i++)
