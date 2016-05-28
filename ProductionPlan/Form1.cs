@@ -20,9 +20,9 @@ namespace ProductionPlan
         int sheetscount;
         int lastRow, lastColumn;
 
-        int products;
-        int orders;
-        int operations;
+        int products = 2;
+        int orders = 2;
+        int operations = 2;
         int maxTime;
 
         public Form1()
@@ -322,7 +322,6 @@ namespace ProductionPlan
             if (tabControl1.SelectedIndex == 1)
             {
                 getDataFromProductGrid();
-
             }
 
             if (tabControl1.SelectedIndex == 2)
