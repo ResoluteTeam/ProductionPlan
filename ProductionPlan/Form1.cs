@@ -15,6 +15,8 @@ namespace ProductionPlan
         List<Order> ordersList;
         List<Product> productList;
 
+        int[] terms;
+
         int sheetscount;
         int lastRow, lastColumn;
 
@@ -22,8 +24,6 @@ namespace ProductionPlan
         int orders;
         int operations;
         int maxTime;
-
-        List<List<int>> productToOperations = new List<List<int>>();
 
         public Form1()
         {
@@ -106,6 +106,7 @@ namespace ProductionPlan
                 if (Convert.ToInt32(textBox3.Text) <= 250)
                 {
                     orders = Convert.ToInt32(textBox3.Text);
+                    terms = new int[orders];
                     updateDataGrid();
                 } else
                 {
@@ -184,6 +185,7 @@ namespace ProductionPlan
             dataGridView4.AutoResizeRowHeadersWidth(DataGridViewRowHeadersWidthSizeMode.AutoSizeToAllHeaders);
             dataGridView5.AutoResizeRowHeadersWidth(DataGridViewRowHeadersWidthSizeMode.AutoSizeToAllHeaders);
 
+            terms = new int[orders];
             getDataFromOrdersGrid();
             getDataFromProductGrid();
         }
@@ -256,6 +258,14 @@ namespace ProductionPlan
         }
         private void getDataFromOrdersGrid()
         {
+            if (terms[0] == 0)
+            {
+                for (int i = 0; i < products; i++)
+                {
+                    terms[i] = Convert.ToInt32(dataGridView3.Rows[i].Cells[0].Value);
+
+                }
+            }
             ordersList = new List<Order>();
 
             for (int i = 0; i < dataGridView2.RowCount; i++)
@@ -276,30 +286,48 @@ namespace ProductionPlan
 
                 tempOrder.Priority = Convert.ToSingle(dataGridView4.Rows[i].Cells[0].Value);
                 tempOrder.Index = i;
-                tempOrder.Time = Convert.ToInt32(dataGridView3.Rows[i].Cells[0].Value);
+
+                if (radioButton2.Checked)
+                    tempOrder.Time = Convert.ToInt32(dataGridView3.Rows[i].Cells[0].Value);
+                else tempOrder.Time = terms[i];
 
                 ordersList.Add(tempOrder);
             }
 
             int temp = 0;
-            for (int i = 0; i < dataGridView3.RowCount; i++)
+
+            if (radioButton2.Checked)
             {
-                if (Convert.ToInt32(dataGridView3.Rows[i].Cells[0].Value) > temp)
+                for (int i = 0; i < dataGridView3.RowCount; i++)
                 {
-                    temp = Convert.ToInt32(dataGridView3.Rows[i].Cells[0].Value);
+                    if (Convert.ToInt32(dataGridView3.Rows[i].Cells[0].Value) > temp)
+                    {
+                        temp = Convert.ToInt32(dataGridView3.Rows[i].Cells[0].Value);
+                    }
+                }
+            }
+            else
+            {
+                for(int i = 0; i < terms.Count(); i++)
+                {
+                    if (temp < terms[i])
+                        temp = terms[i];
                 }
             }
             maxTime = temp;
-
         }
 
         private void tabControl1_SelectedIndexChanged(object sender, EventArgs e)
         {
-            getDataFromProductGrid();
-            getDataFromOrdersGrid();
+            if (tabControl1.SelectedIndex == 1)
+            {
+                getDataFromProductGrid();
+
+            }
 
             if (tabControl1.SelectedIndex == 2)
             {
+                getDataFromOrdersGrid();
                 createResultGrid();
                 if (radioButton1.Checked)
                     calculateByPriority();
@@ -359,6 +387,7 @@ namespace ProductionPlan
             dataGridView5.Rows.Clear();
             dataGridView5.Columns.Clear();
 
+            //if(radioButton1.Checked)
             dataGridView5.ColumnCount = maxTime;
             dataGridView5.RowCount = orders * products * operations + operations + 1;
 
@@ -441,9 +470,9 @@ namespace ProductionPlan
                             {
                                 for (int n = 0; n < dataGridView3.RowCount; n++)
                                 {
-                                    dataGridView3.Rows[n].Cells[0].Value = Convert.ToInt32(dataGridView3.Rows[n].Cells[0].Value) + 1; //добавление + 1 дня к плану
+                                    terms[n] += 1; //добавление + 1 дня к плану
                                 }
-                                getDataFromProductGrid(); //Перерасчёт таблицы
+                                //getDataFromProductGrid(); //Перерасчёт таблицы
                                 getDataFromOrdersGrid();
                                 ordersList = ordersList.OrderByDescending(Order => Order.Priority).ToList();
                                 createResultGrid();
