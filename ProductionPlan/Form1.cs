@@ -47,17 +47,6 @@ namespace ProductionPlan
             tabControl1.SelectedIndex++;
         }
 
-        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            //workbook.Close(false, false, false);
-            //app.Quit();
-            //System.Runtime.InteropServices.Marshal.ReleaseComObject(app);
-            //app = null;
-            //workbook = null;
-            //worksheet = null;
-            //System.GC.Collect();
-        }
-
         private void changeSheet(int num)
         {
             if (num < sheetscount && num > 0)
@@ -311,7 +300,6 @@ namespace ProductionPlan
             {
                 Order tempOrder = new Order(products);
                 int[] amount = new int[products];
-                int priority;
 
                 for (int j = 0; j < dataGridView2.ColumnCount; j++)
                 {
@@ -354,7 +342,6 @@ namespace ProductionPlan
                 }
             }
             maxTime = temp;
-
         }
 
         private void tabControl1_SelectedIndexChanged(object sender, EventArgs e)
@@ -438,14 +425,10 @@ namespace ProductionPlan
             }
             else date = ordersList.ElementAt(0).Time;
             dataGridView5.ColumnCount = date;
-            //else dataGridView5.ColumnCount = date;
             dataGridView5.RowCount = orders * products * operations + operations + 1;
-            //maxTime
 
             int index;
-            //if (radioButton1.Checked)
-                index = date;
-            //else index = maxTime - 1;
+            index = date;
 
             for (int i = index - 1; i >= 0; i--)
             {
@@ -475,9 +458,6 @@ namespace ProductionPlan
 
         private void calculateByPriority()
         {
-            bool flag = true; //if first
-            int wait = 0;
-
             ordersList = ordersList.OrderByDescending(Order => Order.Priority).ToList();
             int currentProduct;
             while (ordersList.Any())
@@ -509,7 +489,6 @@ namespace ProductionPlan
                         
                         }
 
-                        int temp1 = 0, temp2 = 0;
                         for (int k = 0; k < orders * products; k++) //Подсчёт уже отработаных часов на станке за весь день на всех заказах
                         {
                             if (currentDate >= 0)
@@ -525,29 +504,16 @@ namespace ProductionPlan
                             }
                         }
 
-                        //if (temp1 > temp2)
-                        //    temp = temp1;
-                        //else temp = temp2;
-
                         if (temp > times)
                             times = temp;
-
-                        if (flag)
-                        {
-                            wait = times;
-                            flag = false;
-                        }
 
                         int remainder = 0;
                         if (currentProduct >= 0)
                             remainder = productList.ElementAt(currentProduct).Duration.ElementAt(i); //Сколько нужно времени для данной операции
 
-
-
                         while (remainder > 8 - times)
                         {
                             currentDate--;
-                            flag = false;
 
                             if (currentDate == -1)
                             {
@@ -605,7 +571,6 @@ namespace ProductionPlan
 
         private void calculateByTime()
         {
-            //date = 0;
             ordersList = ordersList.OrderByDescending(Order => Order.Priority).ToList();
             List<Order> tempOrdersList = new List<Order>();
             for (int i = 0; i < ordersList.Count; i++)
@@ -618,7 +583,6 @@ namespace ProductionPlan
 
             while (tempOrdersList.Any())
             {
-                //date = tempOrdersList.ElementAt(0).Time;
                 int currentDate = date - 1;
                 currentProduct = -1;
                 for (int i = 0; i < products; i++)
@@ -649,7 +613,15 @@ namespace ProductionPlan
                         for (int k = 0; k < orders * products; k++)
                         {
                             if (currentDate >= 0)
-                                temp += Convert.ToInt32(dataGridView5.Rows[k * operations + i].Cells[currentDate].Value);
+                            {
+                                if (i == 0)
+                                    temp += Convert.ToInt32(dataGridView5.Rows[k * operations + i].Cells[currentDate].Value);
+                                else
+                                {
+                                    temp += Convert.ToInt32(dataGridView5.Rows[k * operations + i].Cells[currentDate].Value);
+                                    temp += Convert.ToInt32(dataGridView5.Rows[k * operations + i - 1].Cells[currentDate].Value);
+                                }
+                            }
                         }
 
                         if (temp > times)
@@ -663,8 +635,6 @@ namespace ProductionPlan
 
                             if (currentDate == -1)
                             {
-                                //date++;
-
                                 for (int n = 0; n < ordersList.Count; n++)
                                 {
                                     if (ordersList.ElementAt(n).Index == tempOrdersList.ElementAt(0).Index)
@@ -682,10 +652,6 @@ namespace ProductionPlan
                                         ordersList.ElementAt(n).Products.SetValue(amount[j], j);
                                     }
                                 }
-                                //date = tempTime;
-                                //maxTime = tempTime;
-                                //getDataFromProductGrid(); //Перерасчёт таблицы
-                                //getDataFromOrdersGrid();
 
                                 currentProduct = -1;
                                 i = operations;
@@ -747,8 +713,6 @@ namespace ProductionPlan
                     if (currentProduct != -1)
                         tempOrdersList.ElementAt(0).Products[currentProduct]--;
                 }
-
-
             }
             calculateTime();
         }
@@ -760,9 +724,8 @@ namespace ProductionPlan
             int i = 0;
             int k = 0;
             int index;
-            //if (radioButton1.Checked)
-                index = date;
-            //else index = maxTime;
+
+            index = date;
 
             while (day < index)
             { 
@@ -786,11 +749,6 @@ namespace ProductionPlan
                 i = 0;
                 day++;
             }
-        }
-
-        private void dataGridView5_CellContentClick(object sender, DataGridViewCellEventArgs e)
-        {
-
         }
 
         private void radioButton2_CheckedChanged(object sender, EventArgs e)
