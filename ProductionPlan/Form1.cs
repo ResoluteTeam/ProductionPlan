@@ -849,14 +849,22 @@ namespace ProductionPlan
                 saveWorkbook = saveApp.Workbooks.Add(System.Reflection.Missing.Value);
                 saveWorksheet = (Excel.Worksheet)saveWorkbook.Worksheets.get_Item(1);
 
+                for (int i = 0; i < dataGridView5.ColumnCount; i++) {
+                    saveWorksheet.Cells[1, i + 2].Value = dataGridView5.Columns[i].HeaderCell.Value;
+                }
+                for (int i = 0; i < dataGridView5.RowCount; i++)
+                {
+                    saveWorksheet.Cells[i + 2, 1].Value = dataGridView5.Rows[i].HeaderCell.Value;
+                }
+
                 for (int i = 0; i < dataGridView5.RowCount; i ++)
                 {
                     for (int j = 0; j < dataGridView5.ColumnCount; j++)
                     {
-                        saveWorksheet.Cells[i + 1, j + 1].Value = dataGridView5.Rows[i].Cells[j].Value;
+                        saveWorksheet.Cells[i + 2, j + 2].Value = dataGridView5.Rows[i].Cells[j].Value;
                     }
                 }
-
+                saveWorksheet.Columns.AutoFit();
                 saveWorkbook.SaveAs(saveFileDialog1.FileName, Excel.XlFileFormat.xlWorkbookDefault, misValue, misValue, misValue, misValue, Excel.XlSaveAsAccessMode.xlExclusive, misValue, misValue, misValue, misValue, misValue);
                 saveWorkbook.Close();
                 saveApp.Quit();
