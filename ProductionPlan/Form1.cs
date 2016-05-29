@@ -36,7 +36,7 @@ namespace ProductionPlan
             orders = Convert.ToInt32(textBox3.Text);
             terms = new int[orders];
 
-            date = 0;
+            date = 1;
 
             dataGridView1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
             updateDataGrid();
@@ -424,20 +424,29 @@ namespace ProductionPlan
             dataGridView5.Rows.Clear();
             dataGridView5.Columns.Clear();
 
-            if (radioButton1.Checked)
-                dataGridView5.ColumnCount = date + 1;
-            else dataGridView5.ColumnCount = maxTime;
+            if (radioButton2.Checked)
+            {
+                date = 0;
+                for (int i = 0; i < ordersList.Count; i++)
+                {
+                    if(ordersList.ElementAt(i).Enabled)
+                        if (date < ordersList.ElementAt(i).Time)
+                                date = ordersList.ElementAt(i).Time;
+                }
+            }
+            dataGridView5.ColumnCount = date;
+            //else dataGridView5.ColumnCount = date;
             dataGridView5.RowCount = orders * products * operations + operations + 1;
             //maxTime
 
             int index;
-            if (radioButton1.Checked)
+            //if (radioButton1.Checked)
                 index = date;
-            else index = maxTime - 1;
+            //else index = maxTime - 1;
 
-            for (int i = index; i >= 0; i--)
+            for (int i = index - 1; i >= 0; i--)
             {
-                dataGridView5.Columns[i].Name = "День " + (index - i + 1).ToString();
+                dataGridView5.Columns[i].Name = "День " + (index - i).ToString();
                 dataGridView5.Columns[i].SortMode = DataGridViewColumnSortMode.NotSortable;
             }
 
@@ -465,12 +474,9 @@ namespace ProductionPlan
         {
             ordersList = ordersList.OrderByDescending(Order => Order.Priority).ToList();
             int currentProduct;
-            date = 0;
-            //currentDate = ordersList.ElementAt(0).Time - 1;
             while (ordersList.Any())
             {
-                //int currentDate = ordersList.ElementAt(0).Time - 1;
-                int currentDate = date;
+                int currentDate = date - 1;
                 currentProduct = -1;
                 for (int i = 0; i < products; i++)
                 {
@@ -518,7 +524,6 @@ namespace ProductionPlan
                                 {
                                     terms[n] += 1; //добавление + 1 дня к плану
                                 }
-                                //getDataFromProductGrid(); //Перерасчёт таблицы
                                 getDataFromOrdersGrid();
                                 ordersList = ordersList.OrderByDescending(Order => Order.Priority).ToList();
                                 createResultGrid();
@@ -568,6 +573,7 @@ namespace ProductionPlan
 
         private void calculateByTime()
         {
+            //date = 0;
             ordersList = ordersList.OrderByDescending(Order => Order.Priority).ToList();
             List<Order> tempOrdersList = new List<Order>();
             for (int i = 0; i < ordersList.Count; i++)
@@ -580,7 +586,8 @@ namespace ProductionPlan
 
             while (tempOrdersList.Any())
             {
-                int currentDate = tempOrdersList.ElementAt(0).Time - 1;
+                //date = tempOrdersList.ElementAt(0).Time;
+                int currentDate = date - 1;
                 currentProduct = -1;
                 for (int i = 0; i < products; i++)
                 {
@@ -624,6 +631,8 @@ namespace ProductionPlan
 
                             if (currentDate == -1)
                             {
+                                //date++;
+
                                 for (int n = 0; n < ordersList.Count; n++)
                                 {
                                     if (ordersList.ElementAt(n).Index == tempOrdersList.ElementAt(0).Index)
@@ -641,14 +650,14 @@ namespace ProductionPlan
                                         ordersList.ElementAt(n).Products.SetValue(amount[j], j);
                                     }
                                 }
-
-
+                                //date = tempTime;
+                                //maxTime = tempTime;
                                 //getDataFromProductGrid(); //Перерасчёт таблицы
                                 //getDataFromOrdersGrid();
-                                tempOrdersList = tempOrdersList.OrderByDescending(Order => Order.Priority).ToList();
-                                createResultGrid();
+
                                 currentProduct = -1;
                                 i = operations;
+
                                 tempOrdersList.Clear();
 
                                 for (int n = 0; n < ordersList.Count; n++)
@@ -656,6 +665,18 @@ namespace ProductionPlan
                                     if (ordersList.ElementAt(n).Enabled == true)
                                         tempOrdersList.Add(ordersList.ElementAt(n));
                                 }
+
+                                tempOrdersList = tempOrdersList.OrderByDescending(Order => Order.Priority).ToList();
+
+                                int tempTime = 0;
+                                for (int n = 0; n < tempOrdersList.Count; n++)
+                                {
+                                    if (tempOrdersList.ElementAt(n).Enabled)
+                                        if (tempOrdersList.ElementAt(n).Time > tempTime)
+                                            tempTime = tempOrdersList.ElementAt(n).Time;
+                                }
+                                date = tempTime;
+                                createResultGrid();
                                 break;
                             }
 
@@ -707,9 +728,9 @@ namespace ProductionPlan
             int i = 0;
             int k = 0;
             int index;
-            if (radioButton1.Checked)
-                index = date + 1;
-            else index = maxTime;
+            //if (radioButton1.Checked)
+                index = date;
+            //else index = maxTime;
 
             while (day < index)
             { 
