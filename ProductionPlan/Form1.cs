@@ -36,7 +36,7 @@ namespace ProductionPlan
             orders = Convert.ToInt32(textBox3.Text);
             terms = new int[orders];
 
-            date = 1;
+            date = 0;
 
             dataGridView1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
             updateDataGrid();
@@ -296,6 +296,7 @@ namespace ProductionPlan
         }
         private void getDataFromOrdersGrid()
         {
+            date = 0;
             if (terms[0] == 0)
             {
                 for (int i = 0; i < orders; i++)
@@ -353,6 +354,7 @@ namespace ProductionPlan
                 }
             }
             maxTime = temp;
+
         }
 
         private void tabControl1_SelectedIndexChanged(object sender, EventArgs e)
@@ -429,11 +431,12 @@ namespace ProductionPlan
                 date = 0;
                 for (int i = 0; i < ordersList.Count; i++)
                 {
-                    if(ordersList.ElementAt(i).Enabled)
+                    if (ordersList.ElementAt(i).Enabled)
                         if (date < ordersList.ElementAt(i).Time)
-                                date = ordersList.ElementAt(i).Time;
+                            date = ordersList.ElementAt(i).Time;
                 }
             }
+            else date = ordersList.ElementAt(0).Time;
             dataGridView5.ColumnCount = date;
             //else dataGridView5.ColumnCount = date;
             dataGridView5.RowCount = orders * products * operations + operations + 1;
@@ -496,13 +499,13 @@ namespace ProductionPlan
                     {
                         int times = 0;
                         int temp = 0;
-                        for (int j = 0; j < operations; j++)
+                        for (int j = 0; j < operations; j++) //Подсчёт уже отработаных часов на станке на одном заказе
                         {
                             if(currentDate >= 0)
                                 times += Convert.ToInt32(dataGridView5.Rows[ordersList.ElementAt(0).Index * products * operations + currentProduct * operations + j].Cells[currentDate].Value);
                         }
 
-                        for (int k = 0; k < orders * products; k++)
+                        for (int k = 0; k < orders * products; k++) //Подсчёт уже отработаных часов на станке за весь день на всех заказах
                         {
                             if (currentDate >= 0)
                                 temp += Convert.ToInt32(dataGridView5.Rows[k * operations + i].Cells[currentDate].Value);
@@ -510,8 +513,9 @@ namespace ProductionPlan
 
                         if (temp > times)
                             times = temp;
-
-                        int remainder = productList.ElementAt(currentProduct).Duration.ElementAt(i);
+                        int remainder = 0;
+                        if (currentProduct >= 0)
+                            remainder = productList.ElementAt(currentProduct).Duration.ElementAt(i); //Сколько нужно времени для данной операции
 
                         while (remainder > 8 - times)
                         {
