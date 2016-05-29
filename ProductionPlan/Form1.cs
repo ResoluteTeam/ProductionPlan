@@ -20,6 +20,7 @@ namespace ProductionPlan
         int sheetscount;
         int lastRow, lastColumn;
 
+        int date;
         int products = 2;
         int orders = 2;
         int operations = 2;
@@ -34,6 +35,8 @@ namespace ProductionPlan
             operations = Convert.ToInt32(textBox2.Text);
             orders = Convert.ToInt32(textBox3.Text);
             terms = new int[orders];
+
+            date = 0;
 
             dataGridView1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
             updateDataGrid();
@@ -388,14 +391,21 @@ namespace ProductionPlan
             dataGridView5.Rows.Clear();
             dataGridView5.Columns.Clear();
 
-            dataGridView5.ColumnCount = maxTime;
+            if (radioButton1.Checked)
+                dataGridView5.ColumnCount = date + 1;
+            else dataGridView5.ColumnCount = maxTime;
             dataGridView5.RowCount = orders * products * operations + operations + 1;
+            //maxTime
 
+            int index;
+            if (radioButton1.Checked)
+                index = date;
+            else index = maxTime - 1;
 
-            for (int i = (maxTime - 1); i >= 0; i--)
+            for (int i = index; i >= 0; i--)
             {
-                dataGridView5.Columns[maxTime - 1 - i].Name = "День " + (i + 1).ToString();
-                dataGridView5.Columns[maxTime - 1 - i].SortMode = DataGridViewColumnSortMode.NotSortable;
+                dataGridView5.Columns[i].Name = "День " + (index - i + 1).ToString();
+                dataGridView5.Columns[i].SortMode = DataGridViewColumnSortMode.NotSortable;
             }
 
             for (int i = 0; i < orders; i++)
@@ -422,10 +432,12 @@ namespace ProductionPlan
         {
             ordersList = ordersList.OrderByDescending(Order => Order.Priority).ToList();
             int currentProduct;
-
+            date = 0;
+            //currentDate = ordersList.ElementAt(0).Time - 1;
             while (ordersList.Any())
             {
-                int currentDate = ordersList.ElementAt(0).Time - 1;
+                //int currentDate = ordersList.ElementAt(0).Time - 1;
+                int currentDate = date;
                 currentProduct = -1;
                 for (int i = 0; i < products; i++)
                 {
@@ -468,6 +480,7 @@ namespace ProductionPlan
 
                             if (currentDate == -1)
                             {
+                                date++;
                                 for (int n = 0; n < dataGridView3.RowCount; n++)
                                 {
                                     terms[n] += 1; //добавление + 1 дня к плану
@@ -660,8 +673,12 @@ namespace ProductionPlan
             int j = 0;
             int i = 0;
             int k = 0;
+            int index;
+            if (radioButton1.Checked)
+                index = date + 1;
+            else index = maxTime;
 
-            while (day < maxTime)
+            while (day < index)
             { 
                 while (i < operations)
                 {
