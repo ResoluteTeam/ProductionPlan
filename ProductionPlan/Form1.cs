@@ -475,6 +475,9 @@ namespace ProductionPlan
 
         private void calculateByPriority()
         {
+            bool flag = true; //if first
+            int wait = 0;
+
             ordersList = ordersList.OrderByDescending(Order => Order.Priority).ToList();
             int currentProduct;
             while (ordersList.Any())
@@ -503,23 +506,48 @@ namespace ProductionPlan
                         {
                             if(currentDate >= 0)
                                 times += Convert.ToInt32(dataGridView5.Rows[ordersList.ElementAt(0).Index * products * operations + currentProduct * operations + j].Cells[currentDate].Value);
+                        
                         }
 
+                        int temp1 = 0, temp2 = 0;
                         for (int k = 0; k < orders * products; k++) //Подсчёт уже отработаных часов на станке за весь день на всех заказах
                         {
                             if (currentDate >= 0)
-                                temp += Convert.ToInt32(dataGridView5.Rows[k * operations + i].Cells[currentDate].Value);
+                            {
+
+                                if (i == 0)
+                                    temp += Convert.ToInt32(dataGridView5.Rows[k * operations + i].Cells[currentDate].Value);
+                                else
+                                {
+                                    temp += Convert.ToInt32(dataGridView5.Rows[k * operations + i].Cells[currentDate].Value);
+                                    temp += Convert.ToInt32(dataGridView5.Rows[k * operations + i - 1].Cells[currentDate].Value);
+                                }
+                            }
                         }
+
+                        //if (temp1 > temp2)
+                        //    temp = temp1;
+                        //else temp = temp2;
 
                         if (temp > times)
                             times = temp;
+
+                        if (flag)
+                        {
+                            wait = times;
+                            flag = false;
+                        }
+
                         int remainder = 0;
                         if (currentProduct >= 0)
                             remainder = productList.ElementAt(currentProduct).Duration.ElementAt(i); //Сколько нужно времени для данной операции
 
+
+
                         while (remainder > 8 - times)
                         {
                             currentDate--;
+                            flag = false;
 
                             if (currentDate == -1)
                             {
